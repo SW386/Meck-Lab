@@ -39,7 +39,7 @@ def clean(Process, Session, Multi = False):
         if Multi:
             Loops = 1
         else:
-            #If there are multiple loops, it will loop through each row of the DataFrame
+            #If there are multiple loops, it will loop through each Dataframe in list v
             Loops = len(v)
         Press = [] 
         for i in range (Loops):
