@@ -6,13 +6,17 @@ Created on Mon Jul  8 16:39:00 2019
 
 Contains the class Process- 
 Functionality:
+   Init
    1) Upload the MPC files to a folder (given by Root and Location)
-   2) Set the trial type
-   3) Extracts the subject rat and date of trial creating a dictionary for identifiers
+   2) Set the Session type
+   3) Extracts the subject rat and date of session creating a dictionary for identifiers
    4) Creates the directories for the processed and unprocessed Files
    5) Extracts the press data and exports the processed data as a NumPy array
    6) Saves the processed and unprocessed files
    7) Creates a dictionary with the subjects rats and processed arrays to be used in Plot.py
+   MedPC_Format
+   1) Takes the NP array and converts it into a dataframe
+   2) The dataframe contains a MultiIndex based on presses and trials
    
 """
 import pandas as pd;
