@@ -3,6 +3,17 @@
 Created on Mon Jul  8 16:39:00 2019
 
 @author: Shufan Wen
+
+Contains the class Process- 
+Functionality:
+   1) Upload the MPC files to a folder (given by Root and Location)
+   2) Set the trial type
+   3) Extracts the subject rat and date of trial creating a dictionary for identifiers
+   4) Creates the directories for the processed and unprocessed Files
+   5) Extracts the press data and exports the processed data as a NumPy array
+   6) Saves the processed and unprocessed files
+   7) Creates a dictionary with the subjects rats and processed arrays to be used in Plot.py
+   
 """
 import pandas as pd;
 import numpy as np;
@@ -14,8 +25,8 @@ from collections import defaultdict;
 
 class Process:
     def __init__(self, Root, Location, Trial):
-        # Root is the root location of the processed file
-        # Location is the location of the unprocessed file
+        # Root is the root of the folder containing Location
+        # Location is the name of the folder containg the unprocessed files
         # Destination is the folder of the final processed file
         # Trial is the trial name: FI or PI or FI
         self.Root = Root
@@ -84,15 +95,11 @@ class Process:
                         New = New.T #Transpose DataFrame
                         SessionData = pd.concat([SessionData, New], axis = 1) #Combines 2 DataFrames
                             
-        FormattedData[Subject].append(SessionData)
-       # SessionData.to_excel('C:\\Users\\Shufan Wen\\Desktop\\Test\\pandas.xlsx')    
+        FormattedData[Subject].append(SessionData)   
         return FormattedData
     
 
             
         
-if __name__ == "__main__":
-    cropped = Process(Root = 'C:\\Users\\Shufan Wen\\Desktop\\Test', Location = 'Unprocessed', Trial = 'FI')
-    cropped.MedPC_format()
         
         
