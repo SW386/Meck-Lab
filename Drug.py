@@ -47,6 +47,3 @@ def Trials(Animal, Drug, Dose, Injection):
     return np.matrix(Output)
     
 
-
-if __name__ == '__main__':
-    print(Trials(10, ["A", "B", "C"], [[1,2],[1,2],[0]], 2))
