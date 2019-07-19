@@ -3,6 +3,14 @@
 Created on Mon Jul  8 15:47:11 2019
 
 @author: Shufan Wen
+
+Currently a Work in Progress!
+
+Contains the fuction Clean
+    1) Uses the Process Class
+    2) Seperates the Dataframe created by MedPC_format() depending on short/long events and left/right lever presses
+    3) Creates 2 or 4 Dataframes to be graphed depending on session type (FI,PI,FI2)
+    4) Dataframes use the histogram function
 """
 
 import os.path
