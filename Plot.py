@@ -69,10 +69,7 @@ def clean(Process, Session, Multi = False):
                 Press.append(Data[333, 'Right'])
                 Press.append(Data[333, 'Left'])
                 BinSize = 149
-                
-        print(Press)
-                
-        
+  
         #Following Creates the Directory and the Binned Trial names
         Dict = {'FI': ['888R', '555L'], 'FI2': ['888R', '888L', '555R', '555L'], 
                 'PI' : ['666R', '666L', '333R', '333L']}
