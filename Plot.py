@@ -31,7 +31,7 @@ def histogram(Data, BinSize):
     Sort = np.array(Flatten / 100)
     BinData = np.digitize(Sort, bins = range(BinSize))
 
-def clean(Process, Condition, Multi = False):
+def clean(Process, Session, Multi = False):
     
     MedPC = Process.MedPC_format()
     
@@ -48,13 +48,13 @@ def clean(Process, Condition, Multi = False):
             else :
                 Data = v[i]
                 
-            if Condition == 'FI':
+            if Session == 'FI':
                 #The List will Contain 2 Dataframes
                 Press.append(Data[888, 'Right'])
                 Press.append(Data[555, 'Left'])
                 BinSize = 150
                 
-            elif Condition == 'FI2':
+            elif Session == 'FI2':
                 #The List will Contain 4 Dataframes
                 Press.append(Data[888, 'Right'])
                 Press.append(Data[888, 'Left'])
@@ -62,7 +62,7 @@ def clean(Process, Condition, Multi = False):
                 Press.append(Data[555, 'Left'])
                 BinSize = 150
                 
-            elif Condition == 'PI' :
+            elif Session == 'PI' :
                 #The List will Contain 4 Dataframes
                 Press.append(Data[666, 'Right'])
                 Press.append(Data[666, 'Left'])
@@ -73,7 +73,7 @@ def clean(Process, Condition, Multi = False):
         print(Press)
                 
         
-        #Following Creates the Diretory and Parts of the Binned Trial names
+        #Following Creates the Directory and the Binned Trial names
         Dict = {'FI': ['888R', '555L'], 'FI2': ['888R', '888L', '555R', '555L'], 
                 'PI' : ['666R', '666L', '333R', '333L']}
         Path = Process.Root
@@ -86,7 +86,7 @@ def clean(Process, Condition, Multi = False):
         #Following saves the Binned Data and Graphs
         for i in range(len(Press)):
             Omit = Press[i].dropna(axis = 'columns', thresh = 1)
-            Filename = '_'.join([k, Condition, str(Dict[Condition][i]), Date])
+            Filename = '_'.join([k, Session, str(Dict[Session][i]), Date])
             Omit.to_excel(os.path.join(Path, 'Subjects', k, 'Bins', Filename + '.xlsx'))
                 
         return (histogram(Omit, BinSize))
@@ -100,8 +100,6 @@ def clean(Process, Condition, Multi = False):
     
     
 
-if __name__ == "__main__":
-    Cropped = Process.Process(Root = 'C:\\Users\\Shufan Wen\\Desktop\\Test', Location = 'Unprocessed', Trial = 'FI')
-    print(clean(Cropped, "FI"))
+
     
     
