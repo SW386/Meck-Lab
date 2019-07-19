@@ -24,14 +24,14 @@ import shutil;
 from collections import defaultdict;
 
 class Process:
-    def __init__(self, Root, Location, Trial):
+    def __init__(self, Root, Location, Session):
         # Root is the root of the folder containing Location
         # Location is the name of the folder containg the unprocessed files
         # Destination is the folder of the final processed file
-        # Trial is the trial name: FI or PI or FI
+        # Session is the trial name: FI or PI or FI
         self.Root = Root
         self.Location = Location
-        self.Trial = Trial
+        self.Session = Session
         self.Subjects = defaultdict(list)
         self.Identifier = defaultdict(list)
         
@@ -42,9 +42,9 @@ class Process:
                     FileData = File.read()
                     SubjectNumber = re.findall(r'(?<=Subject: ).*', FileData)
                     Date = re.findall(r'(?<=Start Date: ).*', FileData)
-                    FileName = '_'.join([SubjectNumber[0], self.Trial, Date[0].replace('/', '_')])
+                    FileName = '_'.join([SubjectNumber[0], self.Session, Date[0].replace('/', '_')])
                     self.Identifier[SubjectNumber[0]].append(Date[0].replace('/','_'))
-                    self.Identifier[SubjectNumber[0]].append(Trial)
+                    self.Identifier[SubjectNumber[0]].append(Session)
                     
                     #Extracts and Processes Data
                     AllNumbers = FileData.split('U:', 1)[1]
@@ -54,16 +54,16 @@ class Process:
                     
                     #Creates File Directories if Nonexistent
                     SubjectPath = os.path.join(self.Root, 'Subjects', SubjectNumber[0])
-                    TrialTypes = ['FI', 'PI']
+                    SessionTypes = ['FI', 'PI']
                     for i in range(2):
-                        if not os.path.exists(os.path.join(SubjectPath, 'Processed', TrialTypes[i])):
-                            os.makedirs(os.path.join(SubjectPath, 'Processed', TrialTypes[i]))
-                        if not os.path.exists(os.path.join(SubjectPath, 'Raw', TrialTypes[i])):
-                            os.makedirs(os.path.join(SubjectPath, 'Raw', TrialTypes[i]))
+                        if not os.path.exists(os.path.join(SubjectPath, 'Processed', SessionTypes[i])):
+                            os.makedirs(os.path.join(SubjectPath, 'Processed', SessionTypes[i]))
+                        if not os.path.exists(os.path.join(SubjectPath, 'Raw', SessionTypes[i])):
+                            os.makedirs(os.path.join(SubjectPath, 'Raw', SessionTypes[i]))
                     
                     #Saves Processed and Unprocessed Files
-                    ProcessedPath = os.path.join(SubjectPath, 'Processed', self.Trial[:2], FileName + '.txt')
-                    RawPath = os.path.join(SubjectPath, 'Raw', self.Trial[:2])
+                    ProcessedPath = os.path.join(SubjectPath, 'Processed', self.Session[:2], FileName + '.txt')
+                    RawPath = os.path.join(SubjectPath, 'Raw', self.Session[:2])
                     np.savetxt(ProcessedPath, ProcessedData, fmt = '%s')
                     shutil.copy(FilePath, RawPath)
                     
