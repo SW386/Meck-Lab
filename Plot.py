@@ -89,8 +89,4 @@ def clean(Process, session, multi = True):
     
     
 
-if __name__ == "__main__":
-    Cropped = Process.Process(root = 'C:\\Users\\Shufan Wen\\Desktop\\Test', location = 'Unprocessed', session = 'FI')
-    print(clean(Cropped, "FI", multi = True))
-    
-    
+
