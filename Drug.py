@@ -9,41 +9,41 @@ import random
 import copy
 import csv
 
-def Trials(Animal, Drug, Dose, Injection):
+def trials(animal, drug, dose, injection):
     """
-    Animal is an integer describing the number of animals to be tested
-    Drug is a list of drug names
-    Dose is a parallel list of lists containing the various concentrations of each drug to be tested
-    Injection is an integer describing the number of times each Drug/Dose combination is to be injected
+    animal is an integer describing the number of animals to be tested
+    drug is a list of drug names
+    dose is a parallel list of lists containing the various concentrations of each drug to be tested
+    injection is an integer describing the number of times each Drug/Dose combination is to be injected
     
     Creates a CSV file where each row is an animal to be tested. Each animal will be treated with every 
-    Drug:Dose:Injection combination though the order of injections will be randomized.
+    drug:dose:injection combination though the order of injections will be randomized.
     
     Returns the CSV file in Matrix form
     """
-    DoseCombinations = []
-    for i in range(len(Drug)):
-        for x in range(len(Dose[i])):
-            DoseCombinations.append(Drug[i] + ":" + str(Dose[i][x]))
-    InjectionCombinations = []
-    for i in range(len(DoseCombinations)):
-        for x in range(1, Injection + 1):
-            InjectionCombinations.append(DoseCombinations[i] + ":" + str(x))
-    Output = []
-    for i in range(Animal):
+    dose_combinations = []
+    for i in range(len(drug)):
+        for x in range(len(dose[i])):
+            dose_combinations.append(drug[i] + ":" + str(dose[i][x]))
+    injection_combinations = []
+    for i in range(len(dose_combinations)):
+        for x in range(1, injection + 1):
+            injection_combinations.append(dose_combinations[i] + ":" + str(x))
+    output = []
+    for i in range(animal):
         array = []
-        a = copy.deepcopy(InjectionCombinations)
-        for i in range(len(InjectionCombinations)):
+        a = copy.deepcopy(injection_combinations)
+        for i in range(len(injection_combinations)):
             x = random.choice(a)
             a.remove(x)
             array.append(x)
-        Output.append(array)
+        output.append(array)
     
-    with open('Trials.csv','w') as csvfile:
+    with open('trials.csv','w') as csvfile:
         filewriter = csv.writer(csvfile)
-        filewriter.writerows(Output)
+        filewriter.writerows(output)
     csvfile.close()
      
-    return np.matrix(Output)
+    return np.matrix(output)
     
 
