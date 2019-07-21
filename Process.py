@@ -91,8 +91,5 @@ class Process:
 
             
         
-if __name__ == "__main__":
-    cropped = Process(root = 'C:\\Users\\Shufan Wen\\Desktop\\Test', location = 'Unprocessed', session = 'FI')
-    cropped.MedPC_format()
-        
+
         
