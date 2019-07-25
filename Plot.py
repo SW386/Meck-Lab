@@ -182,16 +182,12 @@ def plotMulti(Process, cond, multi_session = True, single_trial = False, normali
                 trials = single_trial_analysis(rast)
             else:
                 trials = []
-            steps.append(trials)
             plot_data.append([rast[0], hist[0], bins, trials])
-        
-        #plot(plot_data, k, normalize = False)
             
         plot(plot_data, k, cond, date, path, fit, normalize, save)
         
         
-    return steps
-
+    return 
 
                 
             
