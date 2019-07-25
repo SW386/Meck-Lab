@@ -19,8 +19,8 @@ def run_analysis(cond, fit = True, normalize = True, multi = False, single_trial
     save indicates whether the plot of the data should be saved or not
     """
     
-    cropped = Process_1.Process_Raw(root = 'C:\\Users\\Shufan Wen\\Desktop\\Test', loc = 'Unprocessed', dest = '')
-    steps = Plot_1.plotMulti(cropped, cond, multi, single_trial, normalize, fit, save)
+    cropped = Process.Process_Raw(root = 'C:\\Users\\Shufan Wen\\Desktop\\Test', loc = 'Unprocessed', dest = '')
+    steps = Plot.plotMulti(cropped, cond, multi, single_trial, normalize, fit, save)
     return steps
 
 if __name__ == "__main__":
