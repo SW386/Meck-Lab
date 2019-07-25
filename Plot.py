@@ -123,23 +123,14 @@ def plot(data, subject, cond = '', date = '', path = '', fit = True, normalize =
             ax3.legend(fontsize = 9, loc = 1)
             ax3.set_xlabel('Time (sec)')
             ax3.set_ylabel('Presses (Normalized)')
-        
-        # This is needed for ploting stim conditions
-        trials += max(rast[0]) + 1
-        
-    
+
     if save: 
         if not os.path.exists(os.path.join(path, 'Subjects', subject[:4], 'Graphs')):
             os.makedirs(os.path.join(path, 'Subjects', subject[:4], 'Graphs'))
         plt.savefig(os.path.join(path, 'Subjects', subject[:4], 'Graphs', date + cond + '.png'))
-    #plt.savefig('AP5.png',dpi=900)   
     plt.show()
     return 
 
-# *_data (dict) = data from ProcessedData.Process() for MedPC and Bonsai data, respectively. 
-# cond (str) = 'fi', 'peak' or 'stim'
-# stime_on (str) = which trials have the potential for stim. 'all' or 'peak'
-# single_trial (Boolean) = whether you want start and stop times to be plotted as well
 def plotMulti(Process, cond, multi_session = True, single_trial = False, normalize = True, fit = True, save = True):
     
     Med_data = Process.MedPC_format()
