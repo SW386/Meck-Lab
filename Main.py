@@ -3,11 +3,8 @@
 
 @author: Shufan Wen
 """
-
 import Process
 import Plot
-
-
 
 def run_analysis(cond, fit = True, normalize = True, multi = False, single_trial = False, save = False):
     """
