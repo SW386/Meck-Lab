@@ -11,7 +11,6 @@ import os
 import glob
 import re
 import shutil
-#import cv2
 from collections import defaultdict
 
 class Process_Raw:
@@ -40,26 +39,12 @@ class Process_Raw:
                     if not os.path.exists(os.path.join(subject_path, 'Processed', session_types[i])):
                            os.makedirs(os.path.join(subject_path, 'Processed', session_types[i]))
                     if not os.path.exists(os.path.join(subject_path, 'Raw', session_types[i])):
-                           os.makedirs(os.path.join(subject_path, 'Raw', session_types[i]))
-                           
+                           os.makedirs(os.path.join(subject_path, 'Raw', session_types[i])
                                 
                 processed_path = os.path.join(subject_path, 'Processed', cond[0], meta + '.txt')
                 raw_path = os.path.join(subject_path, 'Raw', cond[0])
                 np.savetxt(processed_path, data, fmt = '%s')
                 shutil.copy(fpath, raw_path)       
-                
-            if os.path.isfile(fpath) and fpath[-3:] == 'csv':
-                fdata = pd.read_csv(fpath, sep = '\s\w', header = None, engine = 'python')
-                fdata = fdata[1].str.extract(r'.*T([0-9:]+)', expand = False)
-                cond = re.findall(r'starts|stim|frames', fpath)
-                subject = re.findall(r'(?<=' + cond[0] + r')(\w+)_', fpath)
-                
-                if cond[0] == 'starts':
-                    self.starts[subject[0]].append(fdata)
-                elif cond[0] == 'stim':
-                    self.stims[subject[0]].append(fdata)
-                elif cond[0] == 'frames':
-                    self.frames[subject[0]].append(fdata)
             
     def MedPC_format(self):
 
