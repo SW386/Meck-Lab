@@ -20,8 +20,8 @@ def run_analysis(cond, fit = True, normalize = True, multi = False, single_trial
     """
     
     cropped = Process.Process_Raw(root = 'C:\\Users\\Shufan Wen\\Desktop\\Test', loc = 'Unprocessed', dest = '')
-    steps = Plot.plotMulti(cropped, cond, multi, single_trial, normalize, fit, save)
-    return steps
+    Plot.plotMulti(cropped, cond, multi, single_trial, normalize, fit, save)
+    return 
 
 if __name__ == "__main__":
     run_analysis(cond = 'FI', multi = False, fit = True, normalize = True, single_trial = False, save = True)
