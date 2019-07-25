@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
-import os
+import os.path
 import Process
 from scipy.optimize import curve_fit, brute
 
