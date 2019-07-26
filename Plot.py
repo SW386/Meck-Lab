@@ -73,7 +73,6 @@ def plot(data, subject, cond = '', date = '', path = '', fit = True, normalize =
         return a * np.exp(-(x - b)**2 / (2 * c)**2) + d * (x - b)
     
     colors = ['b', 'm']
-    trials = 0
   
     gs = plt.GridSpec(2, 2, width_ratios = [1,2])
     ax1 = plt.subplot(gs[0, 0])
