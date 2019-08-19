@@ -124,10 +124,8 @@ def plot(data, subject, cond = '', date = '', path = '', fit = True, normalize =
             ax3.legend(fontsize = 9, loc = 1)
             ax3.set_xlabel('Time (sec)')
             ax3.set_ylabel('Presses (Normalized)')
-            
             μ = popt[1]
             σ = popt[2]
-            
         else:
             μ = 0
             σ = 0
@@ -166,17 +164,26 @@ def plotMulti(Process, cond, multi_session = True, single_trial = False, normali
                 data = pd.concat(v, axis = 1)
             else:
                 data = v[i]
-            
-            if cond.lower() == 'fi':
-                press_data.append(data[888])
-                press_data.append(data[555])
+                
+            if cond.lower() == 'fi' and k[-1] == "1":
+                press_data.append(pd.concat([data[888, "Right"], data[555,"Right"]], axis = 1))
+                press_data.append(data[555, "Left"])
                 bins = 150
-            elif cond.lower() == 'pi':
-                press_data.append(data[666])
-                press_data.append(data[333])
+            elif cond.lower() == 'fi' and k[-1] == "2":
+                press_data.append(pd.concat([data[888, "Left"], data[555,"Left"]], axis = 1))
+                press_data.append(data[555, "Right"])
+                bins = 150
+            elif cond.lower() == 'pi' and k[-1] == "1":
+                press_data.append(pd.concat([data[666, "Right"], data [333, "Right"]], axis = 1))
+                press_data.append(data[333, "Left"])
                 bins = 149
+            elif cond.lower() == 'pi' and k[-1] == "2" :
+                press_data.append(pd.concat([data[666, "Left"], data [333, "Left"]], axis = 1))
+                press_data.append(data[333, "Right"])
+                bins = 149
+            
         
-        press_names = {'FI': ['888', '555'], 'PI' : ['666', '333']}
+        press_names = ["Short", "Long"]
         path = Process.root
         if multi_session:
             date = Process.identifier[k][0] + '_to_' + Process.identifier[k][-2]
@@ -184,12 +191,16 @@ def plotMulti(Process, cond, multi_session = True, single_trial = False, normali
             date = Process.identifier[k][0]
         if not os.path.exists(os.path.join(path, 'Subjects', k, 'Bins')):
             os.makedirs(os.path.join(path, 'Subjects', k, 'Bins'))
+            
+        saved = pd.DataFrame()
         
         for i, val in enumerate(press_data):
             no_omit = val.dropna(axis = 'columns', thresh = 1)  # This removes omitted trials
-            file_name = '_'.join([k, cond, press_names[cond][i], date]) 
-            no_omit.to_excel(os.path.join(path, 'Subjects', k, 'Bins', file_name + '.xlsx'))                    
+            
+                            
             hist, rast = hist_rast(no_omit, bins)
+            binned_data = pd.DataFrame(hist, index = [press_names[i]])
+            saved = pd.concat([saved, binned_data], sort=True,)
             
             if single_trial:
                 trials = single_trial_analysis(rast)
@@ -197,10 +208,14 @@ def plotMulti(Process, cond, multi_session = True, single_trial = False, normali
                 trials = []
             plot_data.append([rast[0], hist[0], bins, trials])
             
+        file_name = '_'.join([k, cond, date])
+        saved.to_excel(os.path.join(path, 'Subjects', k, 'Bins', file_name + '.xlsx'))
+        
+        
+            
         statistics[k] = plot(plot_data, k, cond, date, path, fit, normalize, save)
         
     return statistics
-
 
                 
             

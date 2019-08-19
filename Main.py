@@ -60,6 +60,6 @@ def one_way_anova(statistics):
     return p_value_s, p_value_l        
 
 if __name__ == "__main__":
-    run_analysis(cond = 'FI', multi = False, fit = True, normalize = True, single_trial = False, save = True)
+    run_analysis(cond = 'FI', multi = True, fit = True, normalize = True, single_trial = False, save = True)
 
 

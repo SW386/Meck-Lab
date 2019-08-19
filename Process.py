@@ -4,10 +4,9 @@ Spyder Editor
 
 @author: Shufan Wen
 """
-
 import numpy as np
 import pandas as pd
-import os.path
+import os
 import glob
 import re
 import shutil
@@ -39,8 +38,8 @@ class Process_Raw:
                     if not os.path.exists(os.path.join(subject_path, 'Processed', session_types[i])):
                            os.makedirs(os.path.join(subject_path, 'Processed', session_types[i]))
                     if not os.path.exists(os.path.join(subject_path, 'Raw', session_types[i])):
-                           os.makedirs(os.path.join(subject_path, 'Raw', session_types[i])
-                                
+                           os.makedirs(os.path.join(subject_path, 'Raw', session_types[i]))
+                           
                 processed_path = os.path.join(subject_path, 'Processed', cond[0], meta + '.txt')
                 raw_path = os.path.join(subject_path, 'Raw', cond[0])
                 np.savetxt(processed_path, data, fmt = '%s')
@@ -58,12 +57,17 @@ class Process_Raw:
                 for event, press in all_data[1:, :]:
                     if event in [888, 666, 555, 333] and press == 0:
                         curr_trial = event
-                        press_t = []
-                    elif press in [2, 3, 5, 6]:
-                        press_t.extend([event])                   
+                        right_press = []
+                        left_press = []
+                    elif press in [2, 3]:
+                        left_press.extend([event])     
+                    elif press in [5, 6]:
+                        right_press.extend([event])
                     elif event in [999] and press == 0:
-                        trial = pd.DataFrame({curr_trial: press_t})                       
-                        session_data = pd.concat([session_data, trial], axis = 1)
+                        index = pd.MultiIndex.from_tuples([(curr_trial , 'Left') , (curr_trial , 'Right')]) #Creates MultiIndex
+                        new = pd.DataFrame([left_press, right_press], index = index) #Creates new DataFrame with MultiIndex
+                        new = new.T #Transpose DataFrame
+                        session_data = pd.concat([session_data, new], axis = 1) #Combines 2 DataFrames
                         
                 formatted[sub].append(session_data)     
         return formatted
