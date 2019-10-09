@@ -196,8 +196,6 @@ def plotMulti(Process, cond, multi_session = True, single_trial = False, normali
         
         for i, val in enumerate(press_data):
             no_omit = val.dropna(axis = 'columns', thresh = 1)  # This removes omitted trials
-            
-                            
             hist, rast = hist_rast(no_omit, bins)
             binned_data = pd.DataFrame(hist, index = [press_names[i]])
             saved = pd.concat([saved, binned_data], sort=True,)
@@ -210,13 +208,72 @@ def plotMulti(Process, cond, multi_session = True, single_trial = False, normali
             
         file_name = '_'.join([k, cond, date])
         saved.to_excel(os.path.join(path, 'Subjects', k, 'Bins', file_name + '.xlsx'))
-        
-        
             
         statistics[k] = plot(plot_data, k, cond, date, path, fit, normalize, save)
         
     return statistics
 
+def plotExperiment(Experiment, cond, multi_session = True, single_trial = False, normalize = True, fit = True, save = True):
+    
+    Med_data = Experiment.MedPC_format()
+    statistics = {}
+    
+    for k, v in Med_data.items():
+        
+        press_data = []
+        plot_data = []
+        
+        long_trials = pd.DataFrame()
+        short_trials = pd.DataFrame()
+        
+        for i, j in v:
+            
+            if cond.lower() == 'fi':
+                bins = 150
+                if j[-1] == '1':
+                    short_trials = pd.concat([short_trials, i[888, "Right"], i[555,"Right"]], axis = 1)
+                    long_trials = pd.concat([long_trials, i[555, "Left"]], axis = 1)
+                if j[-1] == '2':
+                    short_trials = pd.concat([short_trials, i[888, "Left"], i[555,"Left"]], axis = 1)
+                    long_trials = pd.concat([long_trials, i[555, "Right"]], axis = 1)
+                
+            if cond.lower() == 'pi':
+                bins = 149
+                if j[-1] == '1':
+                    short_trials = pd.concat([short_trials, i[666, "Right"], i[333, "Right"]], axis = 1)
+                    long_trials = pd.concat([long_trials, i[333, "Left"]], axis = 1)
+                if j[-1] == '2':
+                    short_trials = pd.concat([short_trials, i[666, "Left"], i[333, "Left"]], axis = 1)
+                    long_trials = pd.concat([long_trials, i[333, "Right"]], axis = 1)
+                    
+        press_data.extend([short_trials, long_trials])
+        
+        saved = pd.DataFrame()
+        press_names = ["Short", "Long"]
+        path = Experiment.root
+        date = 'N/A'
+        
+        if not os.path.exists(os.path.join(path, 'Experiments', k, 'Bins')):
+            os.makedirs(os.path.join(path, 'Experiments', k, 'Bins'))
+            
+        for i, val in enumerate(press_data):
+            no_omit = val.dropna(axis = 'columns', thresh = 1)  # This removes omitted trials
+            hist, rast = hist_rast(no_omit, bins)
+            binned_data = pd.DataFrame(hist, index = [press_names[i]])
+            saved = pd.concat([saved, binned_data], sort=True,)
+            
+            if single_trial:
+                trials = single_trial_analysis(rast)
+            else:
+                trials = []
+            plot_data.append([rast[0], hist[0], bins, trials])
+            
+        file_name = '_'.join([k, cond, date])
+#        saved.to_excel(os.path.join(path, 'Experiments', k, 'Bins', file_name + '.xlsx'))
+        statistics[k] = plot(plot_data, k, cond, date, path, fit, normalize, save)
+        
+    return statistics
+                
                 
             
             

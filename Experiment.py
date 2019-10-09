@@ -31,7 +31,7 @@ class Process_Raw:
                     data = re.findall(r'([0-9]{1,})[\s.]', fdata.split('U:', 1)[1])
                     data = np.array(data).reshape((int((len(data)) / 2), 2))
                     final_id = (subject, date[0].replace('/','_'))
-                    final_data = (subject, data)
+                    final_data = (subject[0], data)
                 self.identifier[experiment[0]].append(final_id)
                 self.experiments[experiment[0]].append(final_data)
                 

@@ -6,6 +6,7 @@
 
 import Process
 import Plot
+import Experiment
 import numpy as np
 from scipy import stats
 
@@ -21,8 +22,8 @@ def run_analysis(cond, fit = True, normalize = True, multi = False,
     run_statistics is whether you want to run a one way anova on the trials or not
     """
     
-    cropped = Process.Process_Raw(root = 'C:\\Users\\Shufan Wen\\Desktop\\Test', loc = 'Unprocessed', dest = '')
-    statistics = Plot.plotMulti(cropped, cond, multi, single_trial, normalize, fit, save)
+    cropped = Experiment.Process_Raw(root = 'C:\\Users\\Shufan Wen\\Desktop\\Test', loc = 'Unprocessed', dest = '')
+    statistics = Plot.plotExperiment(cropped, cond, multi, single_trial, normalize, fit, save)
     if run_statistics:
         p_value_s, p_value_l = one_way_anova(statistics)
         return p_value_s, p_value_l
@@ -60,6 +61,6 @@ def one_way_anova(statistics):
     return p_value_s, p_value_l        
 
 if __name__ == "__main__":
-    run_analysis(cond = 'FI', multi = True, fit = True, normalize = True, single_trial = False, save = True)
+    run_analysis(cond = 'PI', multi = True, fit = True, normalize = True, single_trial = False, save = False)
 
 
