@@ -11,7 +11,7 @@ import numpy as np
 from scipy import stats
 
 def run_analysis(cond, fit = True, normalize = True, multi = False, 
-                 single_trial = False, save = False, run_statistics = False):
+                 single_trial = False, save = False, run_statistics = True, data_type = ""):
     """
     cond is the session type, PI or FI
     fit is whether the data should be fit to a guassian curve
@@ -20,10 +20,15 @@ def run_analysis(cond, fit = True, normalize = True, multi = False,
     single_trial indicates if the start and stop instances of high press volume should be identified
     save indicates whether the plot of the data should be saved or not
     run_statistics is whether you want to run a one way anova on the trials or not
+    data_type is used to save the graphs/excel files under its specific path. Use either "Experiments" or "Subjects"
     """
-    
-    cropped = Experiment.Process_Raw(root = 'C:\\Users\\Shufan Wen\\Desktop\\Test', loc = 'Unprocessed', dest = '')
-    statistics = Plot.plotExperiment(cropped, cond, multi, single_trial, normalize, fit, save)
+    if data_type == "Experiments":
+        cropped = Experiment.Process_Raw(root = 'C:\\Users\\Shufan Wen\\Desktop\\Test', loc = 'Unprocessed', dest = '')
+        statistics = Plot.plotExperiment(cropped, cond, single_trial, normalize, fit, save, data_type)
+    if data_type == "Subjects":
+        cropped = Process.Process_Raw(root = 'C:\\Users\\Shufan Wen\\Desktop\\Test', loc = 'Unprocessed', dest = '')
+        statistics = Plot.plotMulti(cropped, cond, multi, single_trial, normalize, fit, save, data_type)
+        
     if run_statistics:
         p_value_s, p_value_l = one_way_anova(statistics)
         return p_value_s, p_value_l
@@ -61,6 +66,6 @@ def one_way_anova(statistics):
     return p_value_s, p_value_l        
 
 if __name__ == "__main__":
-    run_analysis(cond = 'PI', multi = True, fit = True, normalize = True, single_trial = False, save = False)
-
+    a, b = run_analysis(cond = 'PI', multi = True, fit = True, normalize = True, single_trial = False, save = True, data_type = 'Experiments')
+    print(a, b)
 
