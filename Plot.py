@@ -68,7 +68,6 @@ def single_trial_analysis(data):
 def plot(data, subject, cond = '', date = '', path = '', fit = True, normalize = True, save = False, data_type = ""):
     
     #equation taken from Buhusi et al., 2009   
-    k = subject
     def gauss_ramp(x, a, b, c, d):
         return a * np.exp(-(x - b)**2 / (2 * c)**2) + d * (x - b)
     
@@ -135,8 +134,6 @@ def plot(data, subject, cond = '', date = '', path = '', fit = True, normalize =
             statistics[key_name + '_short'] = [n, μ, σ]
         else:
             statistics[key_name + '_long'] = [n, μ, σ]
-            
-    
     
     if save: 
         if data_type == "Subjects" :
@@ -145,9 +142,9 @@ def plot(data, subject, cond = '', date = '', path = '', fit = True, normalize =
             plt.savefig(os.path.join(path, 'Subjects', subject[:4], 'Graphs', subject[:4] + date + cond + '.png')) 
         
         if data_type == "Experiments":
-            if not os.path.exists(os.path.join(path, data_type , k, 'Graphs')):
-                os.makedirs(os.path.join(path, 'Experiments', k, 'Graphs'))
-            plt.savefig(os.path.join(path, 'Experiments', k, 'Graphs', k + date + cond + '.png')) 
+            if not os.path.exists(os.path.join(path, data_type , key_name, 'Graphs')):
+                os.makedirs(os.path.join(path, 'Experiments', key_name, 'Graphs'))
+            plt.savefig(os.path.join(path, 'Experiments', key_name, 'Graphs', k_name + date + cond + '.png')) 
             
     plt.show()
 
@@ -157,6 +154,8 @@ def plotMulti(Process, cond, multi_session = True, single_trial = False, normali
     
     Med_data = Process.MedPC_format()
     statistics = {}
+    
+    print(Med_data)
     
     for k, v in Med_data.items():
         
@@ -192,7 +191,6 @@ def plotMulti(Process, cond, multi_session = True, single_trial = False, normali
                 press_data.append(data[333, "Right"])
                 bins = 149
             
-        
         press_names = ["Short", "Long"]
         path = Process.root
         if multi_session:
@@ -203,25 +201,28 @@ def plotMulti(Process, cond, multi_session = True, single_trial = False, normali
             os.makedirs(os.path.join(path, 'Subjects', k, 'Bins'))
             
         saved = pd.DataFrame()
+        steps = []
         
         for i, val in enumerate(press_data):
             no_omit = val.dropna(axis = 'columns', thresh = 1)  # This removes omitted trials
             hist, rast = hist_rast(no_omit, bins)
             binned_data = pd.DataFrame(hist, index = [press_names[i]])
-            saved = pd.concat([saved, binned_data], sort=True,)
+            saved = pd.concat([saved, binned_data], sort=True)
             
             if single_trial:
                 trials = single_trial_analysis(rast)
             else:
                 trials = []
+                
             plot_data.append([rast[0], hist[0], bins, trials])
+            steps.append(trials)
             
         file_name = '_'.join([k, cond, date])
         saved.to_excel(os.path.join(path, 'Subjects', k, 'Bins', file_name + '.xlsx'))
             
         statistics[k] = plot(plot_data, k, cond, date, path, fit, normalize, save, data_type)
         
-    return statistics
+    return [statistics, steps, Med_data]
 
 def plotExperiment(Experiment, cond, single_trial = False, normalize = True, fit = True, save = True, data_type = ""):
     
@@ -261,10 +262,13 @@ def plotExperiment(Experiment, cond, single_trial = False, normalize = True, fit
         saved = pd.DataFrame()
         press_names = ["Short", "Long"]
         path = Experiment.root
-        date = "N_A"
+        date = "NA"
         
         if not os.path.exists(os.path.join(path, 'Experiments', k, 'Bins')):
             os.makedirs(os.path.join(path, 'Experiments', k, 'Bins'))
+            
+        
+        steps = []
             
         for i, val in enumerate(press_data):
             no_omit = val.dropna(axis = 'columns', thresh = 1)  # This removes omitted trials
@@ -277,12 +281,13 @@ def plotExperiment(Experiment, cond, single_trial = False, normalize = True, fit
             else:
                 trials = []
             plot_data.append([rast[0], hist[0], bins, trials])
+            steps.append(trials)
             
         file_name = '_'.join([k, cond, date]) + '.xlsx'
         saved.to_excel(os.path.join(path, 'Experiments', k, 'Bins', file_name))
         statistics[k] = plot(plot_data, k, cond, date, path, fit, normalize, save, data_type)
         
-    return statistics
+    return [statistics, steps, Med_data]
                 
                 
             

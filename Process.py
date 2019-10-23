@@ -53,7 +53,7 @@ class Process_Raw:
             for session in data:
                 all_data = session.astype(int)
                 session_data = pd.DataFrame()
-                curr_trial = 0               
+                curr_trial = 0
                 for event, press in all_data[1:, :]:
                     if event in [888, 666, 555, 333] and press == 0:
                         curr_trial = event
