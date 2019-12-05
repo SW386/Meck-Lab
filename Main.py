@@ -10,8 +10,11 @@ import Experiment
 import numpy as np
 from scipy import stats
 
+
+
 def run_analysis(cond, fit = True, normalize = True, multi = False, 
-                 single_trial = False, save = False, run_statistics = True, data_type = ""):
+                 single_trial = False, save = False, run_statistics = True, 
+                 superimpose = False, data_type = ""):
     """
     cond is the session type, PI or FI
     fit is whether the data should be fit to a guassian curve
@@ -32,12 +35,12 @@ def run_analysis(cond, fit = True, normalize = True, multi = False,
         cropped = Experiment.Process_Raw(root = 'C:\\Users\\Shufan Wen\\Desktop\\Test', 
                                          loc = 'Unprocessed', dest = '')
         statistics = Plot.plotExperiment(cropped, cond, single_trial, normalize, 
-                                         fit, save, data_type)
+                                         fit, superimpose, save, data_type)
     if data_type == "Subjects":
         cropped = Process.Process_Raw(root = 'C:\\Users\\Shufan Wen\\Desktop\\Test', 
                                       loc = 'Unprocessed', dest = '')
         statistics = Plot.plotMulti(cropped, cond, multi, single_trial, normalize, 
-                                    fit, save, data_type)
+                                    fit, superimpose, save, data_type)
         
     if run_statistics:
         p_value_s, p_value_l = one_way_anova(statistics[0])
@@ -79,8 +82,8 @@ def one_way_anova(statistics):
 
 if __name__ == "__main__":
     [a, b, c] = run_analysis(cond = 'PI', multi = True, fit = True, 
-    normalize = True, single_trial = False, save = False, run_statistics = True, 
-    data_type = 'Experiments')
+    normalize = True, single_trial = False, save = True, run_statistics = True, 
+    superimpose = True, data_type = 'Subjects')
 
     
     

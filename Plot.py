@@ -8,8 +8,13 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 import os.path
+import operator
 from scipy.optimize import curve_fit, brute
 from collections import defaultdict
+
+#equation taken from Buhusi et al., 2009   
+def gauss_ramp(x, a, b, c, d):
+    return a * np.exp(-(x - b)**2 / (2 * c)**2) + d * (x - b)
 
 def hist_rast(data, bin_n):
     
@@ -29,6 +34,54 @@ def hist_rast(data, bin_n):
         raster[i, :].put(np.int64(presses), 1)
     
     return [np.bincount(bin_data, minlength = bin_n + 1)], [np.where(raster)]
+
+def superimpose_data(data, bin_n):
+    
+    #creates histogram
+    hist, rast = hist_rast(data, bin_n)
+    rast, Y, x = [rast[0], hist[0], bin_n]
+    X = np.array(range(x + 1), dtype = np.float)
+    
+    data.columns = range(len(data.columns))
+    flatten = data.unstack().dropna()
+    sort = flatten.sort_values()
+    sort = np.array(flatten) / 100
+    
+    if (np.mean(sort) < 30): 
+        initial = [1, 12, 12, 0]
+    else: 
+        initial = [1, 36, 36, 0]
+    popt, pcov = curve_fit(gauss_ramp, X, Y, p0 = initial)
+    μ = popt[1]
+
+    increment = μ/10
+    curr = 0
+    bins = []
+    while(curr < bin_n):
+        bins.append(curr)
+        curr += increment
+    bin_data = np.digitize(sort, bins = bins)
+    
+    return [np.bincount(bin_data, minlength = bin_n + 1)], [rast]
+       
+def cal_eta_square(narray12, narray36):
+    
+    narray12 = narray12/max(narray12)
+    narray36 = narray36/max(narray36)
+
+    marray = (narray12 + narray36)/2
+    gm = sum(marray)/len(marray)
+    SST = 0
+    for i in narray12:
+        SST += (i-gm)**2
+    for i in narray36:
+        SST += (i-gm)**2
+    SSB = 0
+    for i in marray:
+        SSB += (i-gm)**2
+    SSB = 2*SSB
+    return SSB/SST
+    
 
 def single_trial_analysis(data):
    
@@ -64,13 +117,8 @@ def single_trial_analysis(data):
             tpts[i, :] = np.array([np.nan, np.nan])
         
     return tpts
-    
-def plot(data, subject, cond = '', date = '', path = '', fit = True, normalize = True, save = False, data_type = ""):
-    
-    #equation taken from Buhusi et al., 2009   
-    def gauss_ramp(x, a, b, c, d):
-        return a * np.exp(-(x - b)**2 / (2 * c)**2) + d * (x - b)
-    
+
+def plotNormal(data, subject, cond = '', date = '', path = '', fit = True, normalize = True, save = False, data_type = ""):
     colors = ['b', 'm']
   
     gs = plt.GridSpec(2, 2, width_ratios = [1,2])
@@ -144,18 +192,69 @@ def plot(data, subject, cond = '', date = '', path = '', fit = True, normalize =
         if data_type == "Experiments":
             if not os.path.exists(os.path.join(path, data_type , key_name, 'Graphs')):
                 os.makedirs(os.path.join(path, 'Experiments', key_name, 'Graphs'))
-            plt.savefig(os.path.join(path, 'Experiments', key_name, 'Graphs', k_name + date + cond + '.png')) 
+            plt.savefig(os.path.join(path, 'Experiments', key_name, 'Graphs', key_name + date + cond + '.png')) 
+            
+    plt.show()
+
+    return statistics 
+    
+def plotSuperImpose(data, subject, cond = '', date = '', path = '', save = False, data_type = ""):
+    
+    colors = ['b', 'm']
+    
+    statistics = defaultdict(list)
+    key_name = subject
+    eta = cal_eta_square(data[0][1][:30], data[1][1][:30]) 
+    print(eta)
+    
+    plt.title("Experiment " + subject + " Superimposed")
+    plt.xlabel('Time (Normalized)')
+    plt.xlim([-15, 30])  
+    plt.ylabel('Presses (Normalized)')
+        
+    for i, vals in enumerate(data):
+        rast, Y, x, trial = data[i]
+        X = np.array(range(x + 1), dtype = np.float)
+        index, value = max(enumerate(Y), key=operator.itemgetter(1))
+        X = X - index
+        Y = Y / float(max(Y))
+        plt.plot(X[:30], Y[:30], color = colors[i], linewidth = 2)
+            
+        initial = np.array([1, 12, 12, 0])                                           
+        popt, pcov = curve_fit(gauss_ramp, X[:30], Y[:30], p0 = initial)
+        plt.plot(X[:30], gauss_ramp(X[:30], *popt), 'k', linewidth = 0.5, 
+                 label = 'fit: rate=%5.3f\n      μ=%5.3f\n      σ=%5.3f\n      tail=%5.3f' % tuple(popt))
+        plt.legend(fontsize = 9, loc = 1)
+        
+        μ = popt[1]
+        σ = popt[2]
+        n = rast[0].max()
+        
+        if i == 0:
+            statistics[key_name + '_short'] = [n, μ, σ]
+        else:
+            statistics[key_name + '_long'] = [n, μ, σ]
+    
+    if save: 
+        if data_type == "Subjects" :
+            if not os.path.exists(os.path.join(path, data_type , subject[:4], 'Graphs')):
+                os.makedirs(os.path.join(path, 'Subjects', subject[:4], 'Graphs'))
+            plt.savefig(os.path.join(path, 'Subjects', subject[:4], 'Graphs', subject[:4] + date + cond + '.png')) 
+        
+        if data_type == "Experiments":
+            if not os.path.exists(os.path.join(path, data_type , key_name, 'Graphs')):
+                os.makedirs(os.path.join(path, 'Experiments', key_name, 'Graphs'))
+            plt.savefig(os.path.join(path, 'Experiments', key_name, 'Graphs', key_name + date + cond + '.png')) 
             
     plt.show()
 
     return statistics 
 
-def plotMulti(Process, cond, multi_session = True, single_trial = False, normalize = True, fit = True, save = True, data_type = ""):
+def plotMulti(Process, cond, multi_session = True, single_trial = False, normalize = True, fit = True, superimpose = False, 
+              save = True, data_type = ""):
     
     Med_data = Process.MedPC_format()
     statistics = {}
-    
-    print(Med_data)
     
     for k, v in Med_data.items():
         
@@ -202,10 +301,16 @@ def plotMulti(Process, cond, multi_session = True, single_trial = False, normali
             
         saved = pd.DataFrame()
         steps = []
+        suffix = ""
         
         for i, val in enumerate(press_data):
             no_omit = val.dropna(axis = 'columns', thresh = 1)  # This removes omitted trials
-            hist, rast = hist_rast(no_omit, bins)
+            if superimpose:
+                hist, rast = superimpose_data(no_omit, bins) 
+                suffix = "_superimposed"
+            else: 
+                hist, rast = hist_rast(no_omit, bins)
+                suffix = "_nonimposed"
             binned_data = pd.DataFrame(hist, index = [press_names[i]])
             saved = pd.concat([saved, binned_data], sort=True)
             
@@ -218,13 +323,17 @@ def plotMulti(Process, cond, multi_session = True, single_trial = False, normali
             steps.append(trials)
             
         file_name = '_'.join([k, cond, date])
-        saved.to_excel(os.path.join(path, 'Subjects', k, 'Bins', file_name + '.xlsx'))
+        saved.to_excel(os.path.join(path, 'Subjects', k, 'Bins', file_name + suffix + '.xlsx'))
             
-        statistics[k] = plot(plot_data, k, cond, date, path, fit, normalize, save, data_type)
+        if superimpose:
+            statistics[k] = plotSuperImpose(plot_data, k, cond, date, path, save, data_type)
+        else:
+            statistics[k] = plotNormal(plot_data, k, cond, date, path, fit, normalize, save, data_type = "")
         
     return [statistics, steps, Med_data]
 
-def plotExperiment(Experiment, cond, single_trial = False, normalize = True, fit = True, save = True, data_type = ""):
+def plotExperiment(Experiment, cond, single_trial = False, normalize = True, fit = True, superimpose = False,
+                   save = True, data_type = ""):
     
     Med_data = Experiment.MedPC_format()
     statistics = {}
@@ -263,6 +372,7 @@ def plotExperiment(Experiment, cond, single_trial = False, normalize = True, fit
         press_names = ["Short", "Long"]
         path = Experiment.root
         date = "NA"
+        suffix = ""
         
         if not os.path.exists(os.path.join(path, 'Experiments', k, 'Bins')):
             os.makedirs(os.path.join(path, 'Experiments', k, 'Bins'))
@@ -272,8 +382,13 @@ def plotExperiment(Experiment, cond, single_trial = False, normalize = True, fit
             
         for i, val in enumerate(press_data):
             no_omit = val.dropna(axis = 'columns', thresh = 1)  # This removes omitted trials
-            hist, rast = hist_rast(no_omit, bins)
-            binned_data = pd.DataFrame(hist, index = [press_names[i]])
+            if superimpose:
+                hist, rast = superimpose_data(no_omit, bins)         
+                suffix = "_superimposed"                    
+            else: 
+                hist, rast = hist_rast(no_omit, bins)
+                suffix = "_nonimposed"
+            binned_data = pd.DataFrame(hist, index = [press_names[i]])          
             saved = pd.concat([saved, binned_data], sort=True)
             
             if single_trial:
@@ -283,9 +398,12 @@ def plotExperiment(Experiment, cond, single_trial = False, normalize = True, fit
             plot_data.append([rast[0], hist[0], bins, trials])
             steps.append(trials)
             
-        file_name = '_'.join([k, cond, date]) + '.xlsx'
+        file_name = '_'.join([k, cond, date]) + suffix + '.xlsx'
         saved.to_excel(os.path.join(path, 'Experiments', k, 'Bins', file_name))
-        statistics[k] = plot(plot_data, k, cond, date, path, fit, normalize, save, data_type)
+        if superimpose:
+            statistics[k] = plotSuperImpose(plot_data, k, cond, date, path, save, data_type)
+        else:
+            statistics[k] = plotNormal(plot_data, k, cond, date, path, fit, normalize, save, data_type = "")
         
     return [statistics, steps, Med_data]
                 
