@@ -1,6 +1,7 @@
 # Meck-Lab
 
-Code written for the Meck Lab at Duke Psychology and Neuroscience
+Code written for the Meck Lab at Duke Psychology and Neuroscience - The specific project was to 
+investigate the effects of Pharmacological Agents on timing in the Dorsal Striatum
 
 Drug.py randomly assigns animals to treatment groups
 
